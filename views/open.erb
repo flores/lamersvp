@@ -1,0 +1,19 @@
+<h1>
+  RSVP for our March 29th event!
+</h1>
+<form method="post" action="/rsvp">
+  <label>first name</label>
+  <input name='user[first_name]' type='text' size=20>
+  <label>last name</label>
+  <input name='user[last_name]' type='text' size=20>
+  <label>email</label>
+  <input name='user[email]' type='text' size=20>
+  <center>
+    <p><%= captcha_image_tag %></p>
+    <p><%= captcha_answer_tag %></p>
+  </center>
+  <input type="submit" value="RSVP!" />
+</form>
+<h5>
+  There are <%= @seats %> seats left for this event
+</h5>
