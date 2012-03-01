@@ -45,9 +45,11 @@ post '/rsvp' do
       if valid_email?(user["email"])
 	REDIS.sadd NEXT_EVENT, user.to_json
 	erb :confirmed
+      else
+	"your email looks fake.  are you a bot?"
       end
     else
-      "are you a bot?"
+      "the captcha was wrong.  are you a bot?"
     end
   else #someone is fucking with us
     erb :closed
