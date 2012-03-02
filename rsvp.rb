@@ -11,8 +11,21 @@ NEXT_EVENT = 20120329
 RSVP_LIMIT = 10
 
 def rsvps_left()
-  rsvps = REDIS.scard NEXT_EVENT
-  RSVP_LIMIT - rsvps
+  rsvps = REDIS.keys "#{NEXT_EVENT}*"
+  RSVP_LIMIT - rsvps.length
+end
+
+def already_rsvpd(email)
+  REDIS.exists "#{NEXT_EVENT}:#{email}"
+end
+
+def delete(email)
+  REDIS.del "#{NEXT_EVENT}:#{email}"
+end
+
+def getauth(email)
+  object = JSON.parse(REDIS.get "#{NEXT_EVENT}:#{email}")
+  object["cancel"]
 end
 
 # jacked from http://vitobotta.com/sinatra-contact-form-jekyll/#captcha-verification
@@ -42,22 +55,43 @@ post '/rsvp' do
   if rsvps_left > 0 
     if captcha_pass? 
       user = params[:user]
-      if valid_email?(user["email"])
-	REDIS.sadd NEXT_EVENT, user.to_json
-	erb :confirmed
+      email = user["email"]
+      user["cancel"] = rand(36**15).to_s(36)
+      if valid_email?(email)
+	unless already_rsvpd(email)
+	  erb :confirmed
+	else
+	  @msg = "you are already rsvp'd for this event"
+	  erb :msg
+	end
       else
-	"your email looks fake.  are you a bot?"
+	@msg = "your email looks fake.  are you a bot?"
+	erb :msg
       end
     else
-      "the captcha was wrong.  are you a bot?"
+      @msg = "the captcha was wrong.  are you a bot?"
+      erb :msg
     end
   else #someone is fucking with us
     erb :closed
   end
 end
 
+get '/rsvp/cancel/:email/:authstring' do |email,authstring|
+  if already_rsvpd(email)
+    if authstring == getauth(email)
+      @msg "You have canceled from our #{NEXT_EVENT} event"
+    else
+      @msg "Sorry, I think this request is bogus.  Email us to cancel"
+    end
+  else
+    @msg "Sorry, I do not know this email."
+  end
+  erb :msg
+end
+
 get '/rsvplist' do
-  @rsvp_list = REDIS.sort NEXT_EVENT
+  @rsvp_list = REDIS.keys "#{NEXT_EVENT}*"
   erb :list
 end
 
