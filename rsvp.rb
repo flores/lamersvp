@@ -23,9 +23,24 @@ def delete(email)
   REDIS.del "#{NEXT_EVENT}:#{email}"
 end
 
-def getauth(email)
+def get_auth(email)
   object = JSON.parse(REDIS.get "#{NEXT_EVENT}:#{email}")
   object["cancel"]
+end
+
+# placeholder for automated email confirmation
+def send_email(email,string)
+  ses = AWS::SES::Base.new(
+    :access_key_id  => 'someid',
+    :secret_access_key => 'somekey'
+  )
+  # stick the user info into the subject instead of headers
+  ses.send_email(
+    :to => email,
+    :from => 'someemail',
+    :subject => "Thanks for confirming for our #{NEXT_EVENT} event!"
+    :body => body
+  )
 end
 
 # jacked from http://vitobotta.com/sinatra-contact-form-jekyll/#captcha-verification
@@ -79,7 +94,7 @@ end
 
 get '/rsvp/cancel/:email/:authstring' do |email,authstring|
   if already_rsvpd(email)
-    if authstring == getauth(email)
+    if authstring == get_auth(email)
       @msg "You have canceled from our #{NEXT_EVENT} event"
     else
       @msg "Sorry, I think this request is bogus.  Email us to cancel"
