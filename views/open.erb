@@ -3,20 +3,16 @@
 </h1>
 <form method="post" action="/rsvp">
   <p>
-    <label>first name</label>
-    <input name='user[first_name]' type='text' size=20>
-  </p>
-  <p>
-    <label>last name</label>
-    <input name='user[last_name]' type='text' size=20>
-  </p>
-  <p>
-    <label>organization (optional)</label>
-    <input name='user[org]' type='text' size=20>
+    <label>name</label>
+    <input name='user[name]' type='text' size=20>
   </p>
   <p>
     <label>email</label>
     <input name='user[email]' type='text' size=20>
+  </p>
+  <p>
+    <label>organization</label>
+    <input name='user[org]' type='text' size=20>
   </p>
   <center>
     <p><%= captcha_image_tag %></p>
