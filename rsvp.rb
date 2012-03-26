@@ -133,8 +133,12 @@ post '/cancel/:authstring' do |authstring|
   erb :msg
 end
 
-#get '/rsvplist' do
-#  @rsvplist = REDIS.keys "#{NEXT_EVENT}*"
-#  erb :list
-#end
+get '/rsvplist' do
+  @rsvps = Hash.new
+  list = REDIS.keys "#{NEXT_EVENT}*"
+  list.each do |rsvp|
+    @rsvps[rsvp] = JSON.parse(REDIS.get rsvp)
+  end
+  erb :list
+end
 

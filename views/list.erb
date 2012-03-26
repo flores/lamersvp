@@ -1,5 +1,13 @@
-<ul>
-  <% @rsvplist.each do |@rsvp| %>
-    <li><%= @rsvp %></li>
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Org</th>
+  </tr>
+  <% @rsvps.keys.each do |rsvp| %>
+    <tr>
+      <td><%= @rsvps[rsvp]['name'] %></td>
+      <td><%= @rsvps[rsvp]['org'] %></td>
+    </tr>
   <% end %>
-</ul>
+</table>
+
