@@ -6,16 +6,17 @@ require 'sinatra/captcha'
 require 'aws/ses'
 require 'sanitize'
 require 'haml'
+require 'erb'
 
-set :port, 8000
+set :port, 5061
 
 REDIS = Redis.new
-NEXT_EVENT = "A get together somewhere!"
-WAITING_LIST = "waiting list"
+NEXT_EVENT = "20120426-initial"
+WAITING_LIST = "20120426-waitinglist"
 
 # no limit at this event
 RSVP_LIMIT = 0
-CONTACT = "rsvp@someaddress"
+CONTACT = "rsvp@js.la"
 
 def rsvps_left()
   rsvps = REDIS.keys "#{NEXT_EVENT}*"
@@ -33,7 +34,7 @@ def rsvp(redis_connection,user)
 end
 
 def already_rsvpd(email)
-  if (REDIS.exists "#{NEXT_EVENT}:#{email}") || (REDIS.exists "#{WAITING_LIST}:#{email}")
+  if REDIS.exists "#{NEXT_EVENT}:#{email}"
     return true
   else
     return false
@@ -51,26 +52,32 @@ end
 
 def send_email(email,string)
   ses = AWS::SES::Base.new(
-    :access_key_id  => 'SEKRETZ',
-    :secret_access_key => 'KEYZ'
+    :access_key_id  => 'AKIAI542IZV7HFQS7LXA',
+    :secret_access_key => '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'
+
   )
   # stick the user info into the subject instead of headers
   ses.send_email(
     :to => email,
     :from => CONTACT,
-    :subject => "Thanks for confirming for #{NEXT_EVENT}",
-    :body => "Hi there.  You've confirmed one seat for #{NEXT_EVENT}.
-    
-If you have any questions, please feel free to reply to this email.
+    :subject => "You've confirmed one seat for js.la on Thursday, April 26th, at 7pm",
+    :body => "Hi.  We'll be sending more information later.
 
-Should you need to cancel, please visit mysite.com/cancel/#{string}"
+Should you need to cancel please visit http://js.la/cancel/#{string}
+
+If you have any questions please feel free to reply to this email.
+
+See you there!
+
+the js.la team
+"
   )
 end
 
 def send_waitinglist_email(email,string)
   ses = AWS::SES::Base.new(
-    :access_key_id  => 'id',
-    :secret_access_key => 'key'
+    :access_key_id  => 'key',
+    :secret_access_key => 'id'
   )
   # stick the user info into the subject instead of headers
   ses.send_email(
@@ -113,40 +120,38 @@ get '/rsvp' do
 end
 
 post '/rsvp' do
-  @msg=''
-  if captcha_pass?
-    user = Hash.new
-    params[:user].each do |k,v|
-      user[k] = Sanitize.clean(v)
-    end
-    unless (user[:name])
-      @msg = "Hey, friend.  Please enter your first and last name. We might have name tags."
-      erb :msg
-    end
-    email = user["email"]
-    user["cancel"] = rand(36**15).to_s(36)
-    unless valid_email?(email)
-      @msg = "your email looks fake.  are you a bot?"
-      erb :msg
-    end
-    if !already_rsvpd(email)
-      if rsvps_left > 0
-	rsvp(NEXT_EVENT,user)
-	send_email(email,user["cancel"])
-	erb :confirmed
+#  if rsvps_left > 0 
+    if captcha_pass?
+      user = Hash.new
+      params[:user].each do |k,v|
+        user[k] = Sanitize.clean(v)
+      end
+      email = user["email"]
+      user["cancel"] = rand(36**15).to_s(36)
+      if valid_email?(email)
+        unless already_rsvpd(email)
+	  puts "rsvping"
+          rsvp(NEXT_EVENT, user)
+	  puts "sending email"
+          send_email(email,user["cancel"])
+	  puts "sent email"
+	  @msg = "Thanks!  You have been confirmed for our April 26th event.  Check your email"
+          erb :msg
+        else
+          @msg = "you are already rsvp'd for this event"
+          erb :msg
+        end
       else
-	rsvp(WAITING_LIST,user)
-	send_waitinglist_email(email,user["cancel"])
-	erb :confirmed_waitinglist
+        @msg = "your email looks fake.  are you a bot?"
+        erb :msg
       end
     else
-      @msg = "you are already rsvp'd for this event"
+      @msg = "the captcha was wrong.  are you a bot?"
       erb :msg
     end
-  else
-    @msg = "the captcha was wrong.  are you a bot?"
-    erb :msg
-  end
+#  else #someone is fucking with us
+#    erb :closed
+#  end
 end
 
 get '/cancel/:authstring' do |authstring|
@@ -170,11 +175,12 @@ post '/cancel/:authstring' do |authstring|
   erb :msg
 end
 
-get '/rsvplist' do
-  @rsvps = Hash.new
-  list = REDIS.keys "#{NEXT_EVENT}*"
-  list.each do |rsvp|
-    @rsvps[rsvp] = JSON.parse(REDIS.get rsvp)
-  end
-  erb :list
-end
+#get '/rsvplist' do
+#  @rsvps = Hash.new
+#  list = REDIS.keys "#{NEXT_EVENT}*"
+#  list.each do |rsvp|
+#    @rsvps[rsvp] = JSON.parse(REDIS.get rsvp)
+#  end
+#  erb :list
+#end
+
