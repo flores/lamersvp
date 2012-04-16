@@ -1,17 +1,14 @@
 <h1>
-  We're sorry to see you cancel.
+  We're sorry to see you cancel
 </h1>
 <h2>
   To confirm, please enter your email address again.
 </h2>
-<form method="post" action="/rsvp/<%= @authstring %>">
+<form method="post" action="/cancel/<%= @authstring %>">
   <center>
   <p>
-    <input name='user[email]' type='text' size=20>
+    <input name='email' type='text' size=20>
   </p>
     <input type="submit" value="cancel my rsvp" />
   </center>
 </form>
-<h5>
-  There are <%= @seats %> seats left for this event
-</h5>

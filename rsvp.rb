@@ -3,20 +3,25 @@ require 'redis'
 require 'json'
 require 'sinatra'
 require 'sinatra/captcha'
+require 'aws/ses'
+require 'sanitize'
+require 'haml'
 
-set :port, 5061
+set :port, 8000
 
 REDIS = Redis.new
-NEXT_EVENT = 20120329
-RSVP_LIMIT = 10
+NEXT_EVENT = "thisistotallyatest"
+# no limit at this event
+RSVP_LIMIT = 0
 
 def rsvps_left()
   rsvps = REDIS.keys "#{NEXT_EVENT}*"
-  RSVP_LIMIT - rsvps.length
+#  RSVP_LIMIT - rsvps.length
+  rsvps.length
 end
 
 def rsvp(user)
-  REDIS.set "#{NEXT_EVENT}:#{user['email']}", user.to_jso
+  REDIS.set "#{NEXT_EVENT}:#{user['email']}", user.to_json
 end
 
 def already_rsvpd(email)
@@ -24,7 +29,7 @@ def already_rsvpd(email)
 end
 
 def delete(email)
-  REDIS.del "#{NEXT_EVENT}:#{email}"
+  REDIS.del("#{NEXT_EVENT}:#{email}")
 end
 
 def get_auth(email)
@@ -35,15 +40,24 @@ end
 # placeholder for automated email confirmation
 def send_email(email,string)
   ses = AWS::SES::Base.new(
-    :access_key_id  => 'someid',
-    :secret_access_key => 'somekey'
+    :access_key_id  => 'SEKRETZ',
+    :secret_access_key => 'KEYZ'
   )
   # stick the user info into the subject instead of headers
   ses.send_email(
     :to => email,
-    :from => 'someemail',
-    :subject => "Thanks for confirming for our #{NEXT_EVENT} event!",
-    :body => body
+    :from => 'rsvp@js.la',
+    :subject => "You've confirmed one seat for js.la on Thursday, April 26th, at 7pm",
+    :body => "Hi.  We'll be sending more information later.
+
+Should you need to cancel please visit http://js.la:8000/cancel/#{string}
+
+If you have any questions please feel free to reply to this email.
+
+See you there!
+
+the js.la team
+"
   )
 end
 
@@ -62,27 +76,28 @@ end
 # /jacked
 
 get '/rsvp' do
-  @seats = rsvps_left
-  if @seats > 0 
+   @seats = rsvps_left
+#  if @seats > 0 
     erb :open
-  else
-    erb :closed
-  end
+#  else
+#    erb :closed
+#  end
 end
 
 post '/rsvp' do
-  if rsvps_left > 0 
+#  if rsvps_left > 0 
     if captcha_pass? 
-      user = params[:user]
-      unless (user[:first_name] && user[:last_name])
-	@msg = "Hey, friend.  Please enter your first and last name in case we have name tags."
-	erb :msg
+      user = Hash.new
+      params[:user].each do |k,v|
+        user[k] = Sanitize.clean(v)
       end
       email = user["email"]
-      user["id"] = rand(36**15).to_s(36)
+      user["cancel"] = rand(36**15).to_s(36)
       if valid_email?(email)
+      delete(email)
 	unless already_rsvpd(email)
 	  rsvp(user)
+	  send_email(email,user["cancel"])
 	  erb :confirmed
 	else
 	  @msg = "you are already rsvp'd for this event"
@@ -96,32 +111,28 @@ post '/rsvp' do
       @msg = "the captcha was wrong.  are you a bot?"
       erb :msg
     end
-  else #someone is fucking with us
-    erb :closed
-  end
+#  else #someone is fucking with us
+#    erb :closed
+#  end
 end
 
-get '/rsvp/cancel/:authstring' do |authstring|
+get '/cancel/:authstring' do |authstring|
+  @seats = rsvps_left
   @authstring = authstring
   erb :confirm_cancel
 end
 
-post '/rsvp/cancel/:authstring' do |authstring|
-  email = params[:email]
+post '/cancel/:authstring' do |authstring|
+  email = params["email"]
   if already_rsvpd(email)
     if authstring == get_auth(email)
-      @msg = "You have canceled from our #{NEXT_EVENT} event"
+      delete(email)
+      @msg = "You have canceled from our April 16th event"
     else
-      @msg = "Sorry, I think this request is bogus.  Email us to cancel"
+      @msg = "Sorry, I think this request is bogus.  Email us at rsvp@js.la to cancel"
     end
   else
-    @msg = "Sorry, I do not know this email.  Email us from the account you registered from to cancel"
+    @msg = "Sorry, I do not know this email.  Email us at rsvp@js.la to cancel"
   end
   erb :msg
 end
-
-get '/rsvplist' do
-  @rsvp_list = REDIS.keys "#{NEXT_EVENT}*"
-  erb :list
-end
-

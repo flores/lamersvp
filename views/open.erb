@@ -1,29 +1,41 @@
-<h1>
-  RSVP for our March 29th event!
-</h1>
 <form method="post" action="/rsvp">
-  <p>
-    <label>first name</label>
-    <input name='user[first_name]' type='text' size=20>
-  </p>
-  <p>
-    <label>last name</label>
-    <input name='user[last_name]' type='text' size=20>
-  </p>
-  <p>
-    <label>organization (optional)</label>
-    <input name='user[org]' type='text' size=20>
-  </p>
-  <p>
-    <label>email</label>
-    <input name='user[email]' type='text' size=20>
-  </p>
-  <center>
-    <p><%= captcha_image_tag %></p>
-    <p><%= captcha_answer_tag %></p>
-    <input type="submit" value="RSVP!" />
-  </center>
+      <h2>RSVP for our April 26th Event <br/> 
+      <span><%= @seats %> tickets reserved</span></h2> 
+ 
+      <div class="control-group"> 
+        <label>Name</label> 
+        <div class="controls"> 
+          <input type="text" placeholder="John Hammond" name="user[name]"> 
+        </div> 
+      </div> 
+ 
+      <div class="control-group"> 
+        <label>Email</label> 
+        <div class="controls"> 
+          <input type="email" placeholder="trex@example.com" name="user[email]"> 
+        </div> 
+      </div> 
+ 
+      <div class="control-group"> 
+        <label>Organization</label> 
+        <div class="controls"> 
+          <input type="text" placeholder="InGen" name="user[org]"> 
+        </div> 
+      </div> 
+      
+      <%= captcha_image_tag %>
+      
+      <div class="control-group"> 
+        <div class="controls"> 
+           <input id="captcha-answer" name="captcha_answer" type="text" placeholder="The Magic Letters"> 
+        </div> 
+      </div> 
+ 
+      <div class="control-group"> 
+        <div class="controls"> 
+          <input type="submit" value="Submit"> 
+        </div> 
+      </div>   
+ 
+      <p>Don't worry: we won't share your email address with anyone, and will only use your name and organization for nametags and to verify the rsvp for this event</p>
 </form>
-<h5>
-  There are <%= @seats %> seats left for this event
-</h5>
