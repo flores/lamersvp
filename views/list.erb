@@ -1,11 +1,18 @@
+<<<<<<< HEAD
 <table cellpadding="20">
   <tr>
     <th>Name</th>
     <th></th>
+=======
+<table>
+  <tr>
+    <th>Name</th>
+>>>>>>> master
     <th>Org</th>
   </tr>
   <% @rsvps.keys.each do |rsvp| %>
     <tr>
+<<<<<<< HEAD
       <% if ( @rsvps[rsvp]['name'] ) && rsvp !~ /waiting/i %>
 	<td align='left'><%= @rsvps[rsvp]['name'] %></td>
 	<td></td>
@@ -26,3 +33,11 @@
     </tr>
   <% end %>
 </table>
+=======
+      <td><%= @rsvps[rsvp]['name'] %></td>
+      <td><%= @rsvps[rsvp]['org'] %></td>
+    </tr>
+  <% end %>
+</table>
+
+>>>>>>> master
