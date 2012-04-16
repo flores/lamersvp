@@ -1,0 +1,55 @@
+<!doctype html> 
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]--> 
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]--> 
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]--> 
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]--> 
+<head> 
+  <meta charset="utf-8" /> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /> 
+    <title>JS.LA - A monthly JS meetup</title> 
+    
+    <script src="http://js.la/ed/javascripts/vendor/modernizr.js"></script> 
+    
+    <link rel="stylesheet" type="text/css" href="http://js.la/ed/reset.css"> 
+    <link rel="stylesheet" type="text/css" href="http://js.la/ed/stylesheet.css"> 
+</head> 
+  
+<body> 
+ 
+  <header> 
+    <div class="header-width"> 
+      <div class="yellow-box"> 
+        <div class="logotype"></div> 
+        <div class="skyline"></div> 
+        <div class="tagline">A monthly JavaScript meet up in Los Angeles.</div> 
+      </div> 
+    </div> 
+    
+    <div class="navigation"> 
+      <div class="navigation-width"> 
+        <a class="current" href="index.html">Upcoming Events</a> 
+        <a href="past-events.html">Past Events</a> 
+        <a href="contact.html">Want to present?</a> 
+        <a href="https://twitter.com/losangelesJS">Twitter</a> 
+      </div> 
+    </div> 
+  </header> 
+ 
+  <div class="main-width"> 
+ 
+    <div class="rsvp"> 
+      <%= yield %>
+    </div>
+  </div>
+  <script> 
+    window._gaq = [ ['_setAccount','UA-29201604-1']
+    , ['_setDomainName', 'js.la']
+    , ['_trackPageview']
+    , ['_trackPageLoadTime']
+    ];
+   
+    var protocol = ('https:' == location.protocol ? '//ssl' : '//www');
+   
+    Modernizr.load({ load: protocol + '.google-analytics.com/ga.js' });
+  </script> 
+</body>
