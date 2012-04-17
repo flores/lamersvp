@@ -52,8 +52,8 @@ end
 
 def send_email(email,string)
   ses = AWS::SES::Base.new(
-    :access_key_id  => 'AKIAI542IZV7HFQS7LXA',
-    :secret_access_key => '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'
+    :access_key_id  => 'to my heart',
+    :secret_access_key => 'i like beer'
 
   )
   # stick the user info into the subject instead of headers
@@ -61,7 +61,13 @@ def send_email(email,string)
     :to => email,
     :from => CONTACT,
     :subject => "You've confirmed one seat for js.la on Thursday, April 26th, at 7pm",
-    :body => "Hi.  We'll be sending more information later.
+    :body => "Hi.  Thanks for your RSVP for our April meetup.
+    
+Cross Campus in Santa Monica, a new coworking shop, has graciously offered to host.  Here's instructions from Ronen, who runs that shop:
+
+Cross Campus is located at 820 Broadway, right on the corner of 9th and Broadway in Santa Monica.  The closest parking is the SM public library lot, 3 blocks away.  The entrance is on 7th Street just north of Santa Monica Boulevard.  Flat fee of $3 and closes at 11pm.  If people think they may want to stay out later, there is also a lot on 4th & Broadway which I believe is a flat $5.
+
+Here's a Google map: http://g.co/maps/v2dpy
 
 Should you need to cancel please visit http://js.la/cancel/#{string}
 
