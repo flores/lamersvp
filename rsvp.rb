@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require 'rubygems'
 require 'redis'
 require 'json'
@@ -11,16 +13,16 @@ require 'erb'
 set :port, 5061
 
 REDIS = Redis.new
-NEXT_EVENT = "20120426-initial"
-WAITING_LIST = "20120426-waitinglist"
+NEXT_EVENT = "20120726"
+WAITING_LIST = "20120726-waitinglist"
 
 # no limit at this event
-RSVP_LIMIT = 0
+RSVP_LIMIT = 110
 CONTACT = "rsvp@js.la"
 
 def rsvps_left()
   rsvps = REDIS.keys "#{NEXT_EVENT}*"
-#  RSVP_LIMIT - rsvps.length
+  RSVP_LIMIT - rsvps.length
   rsvps.length
 end
 
@@ -52,24 +54,30 @@ end
 
 def send_email(email,string)
   ses = AWS::SES::Base.new(
-    :access_key_id  => 'to my heart',
-    :secret_access_key => 'i like beer'
+    :access_key_id  => '',
+    :secret_access_key => ''
 
   )
   # stick the user info into the subject instead of headers
   ses.send_email(
     :to => email,
     :from => CONTACT,
-    :subject => "You've confirmed one seat for js.la on Thursday, April 26th, at 7pm",
-    :body => "Hi.  Thanks for your RSVP for our April meetup.
+    :subject => "You've confirmed one seat for js.la on Thursday, July 26th, at 7pm",
+    :body => "
+Hi. Thanks for your RSVP for our July meetup in West Hollywood.  We're excited to see you.
+
+We'll be meeting at CityGrid Media at 7pm, with talks starting around 7:20pm.
+
+Their address is 8833 W. Sunset Boulevard West Hollywood, CA 90069
+
+You can find a map and directions here: http://g.co/maps/bpc48
     
-Cross Campus in Santa Monica, a new coworking shop, has graciously offered to host.  Here's instructions from Ronen, who runs that shop:
-
-Cross Campus is located at 820 Broadway, right on the corner of 9th and Broadway in Santa Monica.  The closest parking is the SM public library lot, 3 blocks away.  The entrance is on 7th Street just north of Santa Monica Boulevard.  Flat fee of $3 and closes at 11pm.  If people think they may want to stay out later, there is also a lot on 4th & Broadway which I believe is a flat $5.
-
-Here's a Google map: http://g.co/maps/v2dpy
+There is limited parking available at CityGrid, and once their lot is full they suggest using the West Hollywood Public Lot near Coffee Bean, just down
+the street from their office.  There is also plenty of metered parking on Sunset Blvd.
 
 Should you need to cancel please visit http://js.la/cancel/#{string}
+
+We update with speaker changes and info at http://js.la and http://twitter.com/LosAngelesJS
 
 If you have any questions please feel free to reply to this email.
 
@@ -82,8 +90,8 @@ end
 
 def send_waitinglist_email(email,string)
   ses = AWS::SES::Base.new(
-    :access_key_id  => 'key',
-    :secret_access_key => 'id'
+    :access_key_id  => '',
+    :secret_access_key => ''
   )
   # stick the user info into the subject instead of headers
   ses.send_email(
@@ -116,7 +124,8 @@ end
 
 get '/rsvp' do
   @seats = rsvps_left
-  if @seats > 0 
+  if @seats > 0
+    @rsvps = RSVP_LIMIT - @seats 
     erb :open
   else
     @seats = RSVP_LIMIT - @seats
@@ -126,7 +135,7 @@ get '/rsvp' do
 end
 
 post '/rsvp' do
-#  if rsvps_left > 0 
+  if rsvps_left > 0 
     if captcha_pass?
       user = Hash.new
       params[:user].each do |k,v|
@@ -141,7 +150,7 @@ post '/rsvp' do
 	  puts "sending email"
           send_email(email,user["cancel"])
 	  puts "sent email"
-	  @msg = "Thanks!  You have been confirmed for our April 26th event.  Check your email"
+	  @msg = "Thanks!  You have been confirmed for our June 28th event.  Check your email"
           erb :msg
         else
           @msg = "you are already rsvp'd for this event"
@@ -155,9 +164,9 @@ post '/rsvp' do
       @msg = "the captcha was wrong.  are you a bot?"
       erb :msg
     end
-#  else #someone is fucking with us
-#    erb :closed
-#  end
+  else #someone is fucking with us
+    erb :closed
+  end
 end
 
 get '/cancel/:authstring' do |authstring|
@@ -181,12 +190,12 @@ post '/cancel/:authstring' do |authstring|
   erb :msg
 end
 
-#get '/rsvplist' do
-#  @rsvps = Hash.new
-#  list = REDIS.keys "#{NEXT_EVENT}*"
-#  list.each do |rsvp|
-#    @rsvps[rsvp] = JSON.parse(REDIS.get rsvp)
-#  end
-#  erb :list
-#end
+get '/rsvplist' do
+  @rsvps = Hash.new
+  list = REDIS.keys "#{NEXT_EVENT}*"
+  list.each do |rsvp|
+    @rsvps[rsvp] = JSON.parse(REDIS.get rsvp)
+  end
+  erb :list
+end
 
