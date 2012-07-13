@@ -10,7 +10,7 @@ require 'sanitize'
 require 'haml'
 require 'erb'
 
-set :port, 5061
+#set :port, 9999
 
 REDIS = Redis.new
 NEXT_EVENT = "20120726"
@@ -23,7 +23,6 @@ CONTACT = "rsvp@js.la"
 def rsvps_left()
   rsvps = REDIS.keys "#{NEXT_EVENT}*"
   RSVP_LIMIT - rsvps.length
-  rsvps.length
 end
 
 def waitinglist_count()
@@ -72,8 +71,7 @@ Their address is 8833 W. Sunset Boulevard West Hollywood, CA 90069
 
 You can find a map and directions here: http://g.co/maps/bpc48
     
-There is limited parking available at CityGrid, and once their lot is full they suggest using the West Hollywood Public Lot near Coffee Bean, just down
-the street from their office.  There is also plenty of metered parking on Sunset Blvd.
+There is limited parking available at CityGrid, and once their lot is full they suggest using the West Hollywood Public Lot near Coffee Bean, just down the street from their office.  There is also plenty of metered parking on Sunset Blvd.
 
 Should you need to cancel please visit http://js.la/cancel/#{string}
 
@@ -124,8 +122,9 @@ end
 
 get '/rsvp' do
   @seats = rsvps_left
+    puts "seats are #{@seats}"
   if @seats > 0
-    @rsvps = RSVP_LIMIT - @seats 
+    @rsvps = RSVP_LIMIT - @seats
     erb :open
   else
     @seats = RSVP_LIMIT - @seats
@@ -150,7 +149,7 @@ post '/rsvp' do
 	  puts "sending email"
           send_email(email,user["cancel"])
 	  puts "sent email"
-	  @msg = "Thanks!  You have been confirmed for our June 28th event.  Check your email"
+	  @msg = "Thanks!  You have been confirmed for our July 26th event.  Check your email"
           erb :msg
         else
           @msg = "you are already rsvp'd for this event"
