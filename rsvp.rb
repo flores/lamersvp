@@ -7,22 +7,22 @@ require 'sinatra'
 require 'sinatra/captcha'
 require 'aws/ses'
 require 'sanitize'
-require 'haml'
 require 'erb'
 
-#set :port, 9999
+#set :port, 5061
 
 REDIS = Redis.new
-NEXT_EVENT = "20120726"
-WAITING_LIST = "20120726-waitinglist"
+NEXT_EVENT = "20120831"
+WAITING_LIST = "#{NEXT_EVENT}-waitinglist"
 
 # no limit at this event
-RSVP_LIMIT = 110
+RSVP_LIMIT = 0
 CONTACT = "rsvp@js.la"
 
 def rsvps_left()
-  rsvps = REDIS.keys "#{NEXT_EVENT}*"
-  RSVP_LIMIT - rsvps.length
+#  rsvps = REDIS.keys "#{NEXT_EVENT}*"
+#  RSVP_LIMIT - rsvps.length
+  return 1
 end
 
 def waitinglist_count()
@@ -57,21 +57,23 @@ def send_email(email,string)
     :secret_access_key => ''
 
   )
-  # stick the user info into the subject instead of headers
   ses.send_email(
     :to => email,
     :from => CONTACT,
-    :subject => "You've confirmed one seat for js.la on Thursday, July 26th, at 7pm",
+    :subject => "You've confirmed one seat for js.la on Thursday, August 30th, at 7pm",
     :body => "
-Hi. Thanks for your RSVP for our July meetup in West Hollywood.  We're excited to see you.
+Hi. Thanks for your RSVP for our August meetup in Santa Monica.  We're excited to see you.
 
-We'll be meeting at CityGrid Media at 7pm, with talks starting around 7:20pm.
+We'll be meeting at Yahoo! at 7pm, with talks starting around 7:20pm.
 
-Their address is 8833 W. Sunset Boulevard West Hollywood, CA 90069
+Their address is 2400 Broadway Street, Santa Monica, CA 90404 
 
-You can find a map and directions here: http://g.co/maps/bpc48
+You can find a map and directions here: http://goo.gl/maps/889v1
     
-There is limited parking available at CityGrid, and once their lot is full they suggest using the West Hollywood Public Lot near Coffee Bean, just down the street from their office.  There is also plenty of metered parking on Sunset Blvd.
+There is meter parking and several pay lots available on the nearby streets.
+
+Once the meetup is over, you're welcome to join us for drinks.js at The Gaslite:
+http://www.yelp.com/biz/the-gaslite-santa-monica
 
 Should you need to cancel please visit http://js.la/cancel/#{string}
 
@@ -83,15 +85,12 @@ See you there!
 
 the js.la team
 "
-  )
-end
 
 def send_waitinglist_email(email,string)
   ses = AWS::SES::Base.new(
     :access_key_id  => '',
     :secret_access_key => ''
   )
-  # stick the user info into the subject instead of headers
   ses.send_email(
     :to => email,
     :from => CONTACT,
@@ -122,7 +121,6 @@ end
 
 get '/rsvp' do
   @seats = rsvps_left
-    puts "seats are #{@seats}"
   if @seats > 0
     @rsvps = RSVP_LIMIT - @seats
     erb :open
@@ -144,12 +142,9 @@ post '/rsvp' do
       user["cancel"] = rand(36**15).to_s(36)
       if valid_email?(email)
         unless already_rsvpd(email)
-	  puts "rsvping"
           rsvp(NEXT_EVENT, user)
-	  puts "sending email"
           send_email(email,user["cancel"])
-	  puts "sent email"
-	  @msg = "Thanks!  You have been confirmed for our July 26th event.  Check your email"
+	  @msg = "Thanks!  You have been confirmed for our August 30th event.  Check your email"
           erb :msg
         else
           @msg = "you are already rsvp'd for this event"
