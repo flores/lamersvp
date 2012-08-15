@@ -20,9 +20,9 @@ RSVP_LIMIT = 0
 CONTACT = "rsvp@js.la"
 
 def rsvps_left()
-#  rsvps = REDIS.keys "#{NEXT_EVENT}*"
+  rsvps = REDIS.keys "#{NEXT_EVENT}*"
 #  RSVP_LIMIT - rsvps.length
-  return 1
+  return rsvps
 end
 
 def waitinglist_count()
@@ -85,6 +85,8 @@ See you there!
 
 the js.la team
 "
+  )
+end
 
 def send_waitinglist_email(email,string)
   ses = AWS::SES::Base.new(
