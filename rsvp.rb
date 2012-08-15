@@ -70,7 +70,10 @@ Their address is 2400 Broadway Street, Santa Monica, CA 90404
 
 You can find a map and directions here: http://goo.gl/maps/889v1
     
-There is meter parking and several pay lots available on the nearby streets.
+There is meter parking and several pay lots available on the nearby streets.  Our friends 
+at Y! strongly suggest you look for street parking in the surrounding neighborhoods, since
+paid parking tends to be expensive.
+
 
 Once the meetup is over, you're welcome to join us for drinks.js at The Gaslite:
 http://www.yelp.com/biz/the-gaslite-santa-monica
