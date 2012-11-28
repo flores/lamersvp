@@ -9,20 +9,19 @@ require 'aws/ses'
 require 'sanitize'
 require 'erb'
 
-#set :port, 5061
+set :port, 6061
 
 REDIS = Redis.new
-NEXT_EVENT = "20120831"
+NEXT_EVENT = "20121213"
 WAITING_LIST = "#{NEXT_EVENT}-waitinglist"
 
 # no limit at this event
-RSVP_LIMIT = 0
+RSVP_LIMIT = 70
 CONTACT = "rsvp@js.la"
 
 def rsvps_left()
   rsvps = REDIS.keys "#{NEXT_EVENT}*"
-#  RSVP_LIMIT - rsvps.length
-  return rsvps
+  return RSVP_LIMIT - rsvps.length
 end
 
 def waitinglist_count()
@@ -53,40 +52,28 @@ end
 
 def send_email(email,string)
   ses = AWS::SES::Base.new(
-    :access_key_id  => '',
-    :secret_access_key => ''
-
+    :access_key_id  => 'AKIAJBTI4BZFDKJTMZVA',
+    :secret_access_key => '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'
   )
   ses.send_email(
     :to => email,
     :from => CONTACT,
-    :subject => "You've confirmed one seat for js.la on Thursday, August 30th, at 7pm",
+    :subject => "You've confirmed one seat for the LA Dev/Ops and JS.LA Holiday Jam on Thursday, December 13th, at 7pm",
     :body => "
-Hi. Thanks for your RSVP for our August meetup in Santa Monica.  We're excited to see you.
+Hi!  We're excited to see you December 13th!
 
-We'll be meeting at Yahoo! at 7pm, with talks starting around 7:20pm.
+Here's the address:
+NextSpace @ Amplify
+1600 Main St
+Venice, CA 90291
 
-Their address is 2400 Broadway Street, Santa Monica, CA 90404 
+Here's a link: http://goo.gl/maps/2ow7w
 
-You can find a map and directions here: http://goo.gl/maps/889v1
-    
-There is meter parking and several pay lots available on the nearby streets.  Our friends 
-at Y! strongly suggest you look for street parking in the surrounding neighborhoods, since
-paid parking tends to be expensive.
-
-
-Once the meetup is over, you're welcome to join us for drinks.js at The Gaslite:
-http://www.yelp.com/biz/the-gaslite-santa-monica
-
-Should you need to cancel please visit http://js.la/cancel/#{string}
-
-We update with speaker changes and info at http://js.la and http://twitter.com/LosAngelesJS
-
-If you have any questions please feel free to reply to this email.
+You're on your own for parking.
 
 See you there!
+the js.la and LA Dev/Ops team
 
-the js.la team
 "
   )
 end
@@ -112,7 +99,7 @@ end
 
 # jacked from http://vitobotta.com/sinatra-contact-form-jekyll/
 def valid_email?(email)
-  if email =~ /^[a-zA-Z][\w\.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]$/
+  if email =~ /^[a-zA-Z0-9][\w\.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]$/
     domain = email.match(/\@(.+)/)[1]
     Resolv::DNS.open do |dns|
       @mx = dns.getresources(domain, Resolv::DNS::Resource::IN::MX)
@@ -124,7 +111,7 @@ def valid_email?(email)
 end
 # /jacked
 
-get '/rsvp' do
+get '/holidayjam' do
   @seats = rsvps_left
   if @seats > 0
     @rsvps = RSVP_LIMIT - @seats
@@ -136,8 +123,8 @@ get '/rsvp' do
   end
 end
 
-post '/rsvp' do
-  if rsvps_left > 0 
+post '/holidayjam' do
+#  if rsvps_left > 0 
     if captcha_pass?
       user = Hash.new
       params[:user].each do |k,v|
@@ -149,7 +136,7 @@ post '/rsvp' do
         unless already_rsvpd(email)
           rsvp(NEXT_EVENT, user)
           send_email(email,user["cancel"])
-	  @msg = "Thanks!  You have been confirmed for our August 30th event.  Check your email"
+	  @msg = "Thanks!  You have been confirmed for our Holiday Jam.  Check your email"
           erb :msg
         else
           @msg = "you are already rsvp'd for this event"
@@ -163,18 +150,18 @@ post '/rsvp' do
       @msg = "the captcha was wrong.  are you a bot?"
       erb :msg
     end
-  else #someone is fucking with us
-    erb :closed
-  end
+#  else #someone is fucking with us
+#    erb :closed
+#  end
 end
 
-get '/cancel/:authstring' do |authstring|
+get '/holidayjam/cancel/:authstring' do |authstring|
   @seats = rsvps_left
   @authstring = authstring
   erb :confirm_cancel
 end
 
-post '/cancel/:authstring' do |authstring|
+post '/holidayjam/cancel/:authstring' do |authstring|
   email = params["email"]
   if already_rsvpd(email)
     if authstring == get_auth(email)
