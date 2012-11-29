@@ -1,7 +1,6 @@
 <form method="post" action="/holidayjam">
-      <div class="small-display">RSVP</div>
-      <span><%= @rsvps %> reservations</span><br />
-      <span><%= @seats %> tickets remaining</span>
+      <div class="small-display"><span class="note"><%= @rsvps %></span> Reservations<br/><span class="note"><%= @seats %></span> Remaining</div>
+      
       <div class="control-group"> 
         <label>Name</label> 
         <div class="controls"> 
