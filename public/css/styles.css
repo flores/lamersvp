@@ -275,9 +275,6 @@ input:focus, textarea:focus {
 	.details {
 		display: none;
 	}
-	.secondary-logo {
-		display: none;
-	}
 	.header .row .last .caption {
 		margin-bottom: 0;
 	}
