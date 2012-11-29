@@ -22,6 +22,7 @@
 <div class="container header">
 	<div id="map-close"></div>
 	<div id="mapContainer"></div>
+	<div id="mapContainer-cover"></div>
 	<script type="text/javascript">
 		nokia.Settings.set("appId", "PquCrGgrx7Xv5JOT-WVR"); 
 		nokia.Settings.set("authenticationToken", "6bBVL6ZLeN52CMx3BfE8zw");
@@ -89,10 +90,12 @@
 		
 		$(document).ready(function(){
 			$('#map-trigger').hover(function(){
+				$('#mapContainer-cover').css('display','none');
 				$('.header .row').fadeOut(200, function(){$('#mapContainer').fadeTo(200, 1);});
 				$('#map-close').fadeIn(400);
 			});
 			$('#map-close').click(function(){
+				$('#mapContainer-cover').css('display','block');
 				$('#mapContainer').fadeTo(200, .25, function(){$('.header .row').fadeTo(200, 1);});
 				$('#map-close').fadeOut(400);
 			});
@@ -132,7 +135,7 @@
 			<p>Thursday, 7&mdash;10pm</p>
 			<p>NextSpace @ Amplify<br/>1600 Main St<br/>Venice, CA 90291</p>
 			<p>This meetup will bring together fellow LA tech friends to enjoy conversation and holiday cheer over food, wine and beer.  Happy Holidays &ndash; hope to see you there.</p>
-			<p><br/><img src="img/sponsors.png" alt="Sponsors" /></p>
+			<div class="sponsors"><img src="img/sponsors.png" alt="Sponsors" /><a href="http://js.la/" class="jsla" title="js.la"></a><a href="http://www.edgecast.com/" class="edgecast" title="edgecast.com"></a><a href="http://nextspace.us/nextspace-los-angeles/" class="nextspace" title="nextspace"></a><a href="http://www.amplify.la/" class="amplify" title="amplify.la"></a><a href="http://www.meetup.com/ladevops/" class="ladevops" title="meetup.com/ladevops/"></a></div>
 		</div>
 		<div class="fourcol last">
 			<div class="rsvp"> 

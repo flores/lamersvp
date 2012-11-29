@@ -58,7 +58,12 @@ input:focus, textarea:focus {
 }
 .header .logo {
 	max-height: 2.2em;
-	padding-top: .2em;
+	vertical-align: middle;
+}
+.header .logo-wrap {
+	padding-top: .1em;
+	line-height: 2.2em;
+	vertical-align: middle;
 }
 .header .logo span {
 	color: #90D10F;
@@ -113,6 +118,20 @@ input:focus, textarea:focus {
 	-khtml-opacity: 0.25;
 	opacity: 0.25;
 }
+#mapContainer-cover {
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	position: absolute;
+	z-index: 2;
+	background; white;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: alpha(opacity=0);
+	-moz-opacity: 0;
+	-khtml-opacity: 0;
+	opacity: 0;
+}
 #map-close {
 	display: none;
 	cursor: pointer;
@@ -133,8 +152,22 @@ input:focus, textarea:focus {
 	z-index: 5;
 	background: transparent url('../img/gradient-bg.png') top left repeat-x;
 }
-.content .secondary-logo {
-	
+.content .row {
+	overflow: visible;
+}
+.content .secondary-logo img {
+	-webkit-transition:all 5.5s ease-out;
+	-moz-transition:all 5.5s ease-out;
+	-ms-transition:all 5.5s ease-out;
+	-o-transition:all 5.5s ease-out;
+	transition:all 5.5s ease-out;
+}
+.content .secondary-logo img:hover {
+	-webkit-transform:rotate(360deg);
+	-moz-transform:rotate(360deg);
+	-ms-transform:rotate(360deg);
+	-o-transform:rotate(360deg);
+	transform:rotate(360deg);
 }
 .content strong {
 	letter-spacing: .6px;
@@ -158,6 +191,44 @@ input:focus, textarea:focus {
 }
 .content input.button:hover {
 	background: #FC950F;
+}
+.sponsors {
+	position: relative;
+	max-width: 329px;
+}
+.sponsors a {
+	display: block;
+	position: absolute;
+}
+.sponsors .jsla {
+	width: 50%;
+	height: 50%;
+	top: 0;
+	left: 0;
+}
+.sponsors .edgecast {
+	width: 50%;
+	height: 50%;
+	top: 0;
+	right: 0;
+}
+.sponsors .nextspace {
+	width: 25%;
+	height: 50%;
+	top: 50%;
+	left: 0;
+}
+.sponsors .amplify {
+	width: 25%;
+	height: 50%;
+	top: 50%;
+	left: 25%;
+}
+.sponsors .ladevops {
+	width: 50%;
+	height: 50%;
+	top: 50%;
+	right: 0;
 }
 .footer {
 	padding-bottom: 40px;
